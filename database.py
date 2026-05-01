@@ -1,15 +1,18 @@
 import os
 import psycopg2
 from datetime import datetime, timedelta
-import sqlite3
 
-conn = sqlite3.connect("expenses_web.db", check_same_thread=False)
 DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise Exception("DATABASE_URL is not set")
+
+conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS transactions (
-    id SERIAL PRIMARY KEY,f
+    id SERIAL PRIMARY KEY,
     user_id INTEGER,
     type TEXT,
     category TEXT,
@@ -18,29 +21,8 @@ CREATE TABLE IF NOT EXISTS transactions (
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
-
 conn.commit()
 
-def init_db():
-    conn = sqlite3.connect("expenses_web.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        type TEXT,
-        category TEXT,
-        amount REAL,
-        comment TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    conn.commit()
-    conn.close()
-
-init_db()
 
 def add_transaction(user_id, type_, category, amount, comment):
     cursor.execute("""
