@@ -9,7 +9,7 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS transactions (
-    id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,f
     user_id INTEGER,
     type TEXT,
     category TEXT,
