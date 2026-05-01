@@ -1,0 +1,601 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expenses Pro</title>
+
+    <style>
+        :root {
+            --bg: #050505;
+            --card: rgba(30, 30, 35, 0.72);
+            --border: rgba(255,255,255,0.08);
+            --text: #ffffff;
+            --muted: #8b8b8b;
+            --green: #00dc82;
+            --red: #ff3b30;
+            --blue: #0a84ff;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        body {
+            background: #050505;
+            color: white;
+            padding: 20px 16px 80px;
+            background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: 22px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .glass {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(18px);
+        }
+
+        .balance-card {
+            padding: 22px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .balance-label {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        #balance {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 18px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+        }
+
+        .stat {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+            .stat span {
+                display: block;
+                color: var(--muted);
+                font-size: 11px;
+            }
+
+            .stat b {
+                font-size: 16px;
+            }
+
+        .green {
+            color: var(--green);
+        }
+
+        .red {
+            color: var(--red);
+        }
+
+        .periods {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+            .periods button {
+                border: none;
+                background: rgba(255,255,255,0.07);
+                color: var(--muted);
+                padding: 9px 16px;
+                border-radius: 20px;
+                font-weight: 600;
+            }
+
+                .periods button.active {
+                    background: rgba(255,255,255,0.18);
+                    color: white;
+                }
+
+        .add-card {
+            padding: 16px;
+            margin-bottom: 22px;
+        }
+
+        .section-title {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+            margin: 0 0 10px 4px;
+        }
+
+        .toggle {
+            display: flex;
+            background: rgba(0,0,0,0.35);
+            padding: 3px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+            .toggle button {
+                flex: 1;
+                border: none;
+                background: transparent;
+                color: var(--muted);
+                padding: 9px;
+                border-radius: 9px;
+                font-weight: 700;
+            }
+
+                .toggle button.active.expense {
+                    background: var(--red);
+                    color: white;
+                }
+
+                .toggle button.active.income {
+                    background: var(--green);
+                    color: white;
+                }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.28);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+
+        .save {
+            width: 100%;
+            border: none;
+            background: white;
+            color: black;
+            padding: 14px;
+            border-radius: 13px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .cat-item {
+            margin-bottom: 12px;
+        }
+
+        .cat-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .progress-bg {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--blue);
+        }
+
+        .transactions {
+            list-style: none;
+        }
+
+        .tx {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .tx-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tx h4 {
+            font-size: 14px;
+        }
+
+        .tx p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .amount {
+            font-weight: 800;
+        }
+
+        .empty {
+            color: var(--muted);
+            text-align: center;
+            padding: 18px;
+            font-size: 13px;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(50px);
+            background: white;
+            color: black;
+            padding: 11px 22px;
+            border-radius: 30px;
+            font-weight: 700;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+            #toast.show {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        .user-switch {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(255,255,255,0.05);
+            padding: 4px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .user-btn {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            background: transparent;
+            color: #8b8b8b;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+            .user-btn.active {
+                background: white;
+                color: black;
+            }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Expenses</h1>
+        <button class="clear-btn" onclick="clearAll()">🗑 Очистить</button>
+    </header>
+
+    <div class="user-switch">
+        <button class="user-btn active" onclick="setUser(1, this)">Murad</button>
+        <button class="user-btn" onclick="setUser(2, this)">Nigar</button>
+    </div>
+
+    <div class="balance-card glass">
+        <div class="balance-label">Общий баланс</div>
+        <div id="balance">0 ₼</div>
+
+        <div class="stats">
+            <div class="stat">
+                <span>Доходы</span>
+                <b class="green" id="income">+0 ₼</b>
+            </div>
+            <div class="stat">
+                <span>Расходы</span>
+                <b class="red" id="expense">-0 ₼</b>
+            </div>
+        </div>
+    </div>
+
+    <div class="periods">
+        <button class="period-btn active" onclick="changePeriod('day', this)">День</button>
+        <button class="period-btn" onclick="changePeriod('week', this)">Неделя</button>
+        <button class="period-btn" onclick="changePeriod('month', this)">Месяц</button>
+        <button class="period-btn" onclick="changePeriod('year', this)">Год</button>
+    </div>
+
+    <div class="add-card glass">
+        <div class="section-title">Новая операция</div>
+
+        <form onsubmit="saveOperation(event)">
+            <input type="hidden" id="type" value="expense">
+
+            <div class="toggle">
+                <button type="button" id="expenseBtn" class="active expense" onclick="setType('expense')">Расход</button>
+                <button type="button" id="incomeBtn" class="income" onclick="setType('income')">Доход</button>
+            </div>
+
+            <div class="row">
+                <input type="number" id="amount" placeholder="Сумма" required>
+                <select id="category">
+                    <option value="Ресторан">🍽 Ресторан</option>
+                    <option value="Транспорт">🚕 Транспорт</option>
+                    <option value="Учеба">📚 Учеба</option>
+                    <option value="Аренда">🏠 Аренда</option>
+                    <option value="Развлечения">🎉 Развлечения</option>
+                    <option value="Кредиты">💳 Кредиты</option>
+                    <option value="Ребенок">👶 Ребенок</option>
+                    <option value="Продукты">🛒 Продукты</option>
+                    <option value="Мебель">🛋 Мебель</option>
+                    <option value="Подарок">🎁 Подарок</option>
+                    <option value="Другое">📦 Другое</option>
+                </select>
+            </div>
+
+            <input type="text" id="comment" placeholder="Комментарий">
+
+            <button class="save" type="submit">Сохранить</button>
+        </form>
+    </div>
+
+    <div class="section-title">Расходы по категориям</div>
+    <div id="categories"></div>
+
+    <div class="section-title" style="margin-top:24px;">Последние операции</div>
+    <ul id="transactions" class="transactions"></ul>
+
+    <div id="toast">Сохранено</div>
+
+    <script>
+        let currentPeriod = "day";
+        let currentUserId = localStorage.getItem("currentUserId") || "1";
+        const icons = {
+        "Ресторан": "🍽",
+        "Транспорт": "🚕",
+        "Учеба": "📚",
+        "Аренда": "🏠",
+        "Развлечения": "🎉",
+        "Кредиты": "💳",
+        "Ребенок": "👶",
+        "Продукты": "🛒",
+        "Мебель": "🛋",
+        "Подарок": "🎁",
+        "Другое": "📦",
+        "Доход": "💰"
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".user-btn").forEach(btn => btn.classList.remove("active"));
+
+    if (currentUserId === "1") {
+        document.querySelectorAll(".user-btn")[0].classList.add("active");
+    } else {
+        document.querySelectorAll(".user-btn")[1].classList.add("active");
+    }
+
+    loadDashboard(currentPeriod);
+});
+
+        async function loadDashboard(period = currentPeriod) {
+        currentPeriod = period;
+
+        const response = await fetch(`/dashboard?user_id=${currentUserId}&period=${period}`);
+        const data = await response.json();
+
+        document.getElementById("balance").innerText = formatMoney(data.balance) + " ₼";
+        document.getElementById("income").innerText = "+" + formatMoney(data.income) + " ₼";
+        document.getElementById("expense").innerText = "-" + formatMoney(data.expense) + " ₼";
+
+        renderCategories(data.categories);
+        renderTransactions(data.transactions);
+        }
+
+        async function saveOperation(event) {
+        event.preventDefault();
+
+        const type = document.getElementById("type").value;
+        const amount = document.getElementById("amount").value;
+        const category = document.getElementById("category").value;
+        const comment = document.getElementById("comment").value;
+
+        let formData = new FormData();
+        formData.append("user_id", currentUserId);
+        formData.append("amount", amount);
+        formData.append("comment", comment);
+
+        if (type === "expense") {
+        formData.append("category", category);
+        await fetch("/add_expense", {
+        method: "POST",
+        body: formData
+        });
+        } else {
+        await fetch("/add_income", {
+        method: "POST",
+        body: formData
+        });
+        }
+
+        document.getElementById("amount").value = "";
+        document.getElementById("comment").value = "";
+
+        await loadDashboard(currentPeriod);
+        showToast();
+        }
+
+        function setType(type) {
+        document.getElementById("type").value = type;
+
+        const expenseBtn = document.getElementById("expenseBtn");
+        const incomeBtn = document.getElementById("incomeBtn");
+
+        expenseBtn.classList.remove("active");
+        incomeBtn.classList.remove("active");
+
+        if (type === "expense") {
+        expenseBtn.classList.add("active");
+        } else {
+        incomeBtn.classList.add("active");
+        }
+        }
+
+        function changePeriod(period, button) {
+        document.querySelectorAll(".period-btn").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+        loadDashboard(period);
+        }
+
+        function renderCategories(categories) {
+        const container = document.getElementById("categories");
+        container.innerHTML = "";
+
+        if (!categories || categories.length === 0) {
+        container.innerHTML = '<div class="empty">Нет расходов за период</div>';
+        return;
+        }
+
+        const maxVal = Math.max(...categories.map(c => c[1]));
+
+        categories.forEach(c => {
+        const name = c[0];
+        const amount = c[1];
+        const percent = maxVal > 0 ? (amount / maxVal) * 100 : 0;
+
+        container.innerHTML += `
+        <div class="cat-item">
+        <div class="cat-top">
+        <span>${icons[name] || "📦"} ${name}</span>
+        <span>${formatMoney(amount)} ₼</span>
+        </div>
+        <div class="progress-bg">
+        <div class="progress-fill" style="width:${percent}%"></div>
+        </div>
+        </div>
+        `;
+        });
+        }
+
+        function renderTransactions(transactions) {
+        const list = document.getElementById("transactions");
+        list.innerHTML = "";
+
+        if (!transactions || transactions.length === 0) {
+        list.innerHTML = '<li class="empty">Пока нет операций</li>';
+        return;
+        }
+
+        transactions.forEach(t => {
+        const type = t[0];
+        const category = t[1];
+        const amount = t[2];
+        const comment = t[3];
+
+        const isIncome = type === "income";
+        const sign = isIncome ? "+" : "-";
+        const color = isIncome ? "green" : "red";
+
+        list.innerHTML += `
+        <li class="tx">
+        <div class="tx-left">
+        <div class="icon">${icons[category] || "📦"}</div>
+        <div>
+        <h4>${category}</h4>
+        <p>${comment || "Без комментария"}</p>
+        </div>
+        </div>
+        <div class="amount ${color}">
+        ${sign}${formatMoney(amount)} ₼
+        </div>
+        </li>
+        `;
+        });
+        }
+
+        async function clearAll() {
+        if (!confirm("Удалить все данные?")) return;
+
+       let formData = new FormData();
+formData.append("user_id", currentUserId);
+
+await fetch("/clear", {
+    method: "POST",
+    body: formData
+});
+
+        await loadDashboard(currentPeriod);
+        }
+
+        function formatMoney(num) {
+        num = Number(num || 0);
+        return num.toLocaleString("ru-RU");
+        }
+
+        function showToast() {
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+
+        setTimeout(() => {
+        toast.classList.remove("show");
+        }, 1800);
+        }
+
+        function setUser(userId, button) {
+    currentUserId = String(userId);
+    localStorage.setItem("currentUserId", currentUserId);
+
+    document.querySelectorAll(".user-btn").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+
+    loadDashboard(currentPeriod);
+}
+    </script>
+
+</body>
+</html>
