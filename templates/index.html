@@ -363,7 +363,7 @@
             </div>
 
             <div class="row">
-                <input type="number" id="amount" placeholder="Сумма" required>
+                <input type="number" id="amount" step="0.01" placeholder="Сумма" required>
                 <select id="category">
                     <option value="Ресторан">🍽 Ресторан</option>
                     <option value="Транспорт">🚕 Транспорт</option>
@@ -429,9 +429,9 @@
         const response = await fetch(`/dashboard?user_id=${currentUserId}&period=${period}`);
         const data = await response.json();
 
-        document.getElementById("balance").innerText = formatMoney(data.balance) + " ₼";
-        document.getElementById("income").innerText = "+" + formatMoney(data.income) + " ₼";
-        document.getElementById("expense").innerText = "-" + formatMoney(data.expense) + " ₼";
+        document.getElementById("balance").innerText = formatMoney(data.balance) + getCurrency();
+        document.getElementById("income").innerText = "+" + formatMoney(data.income) + getCurrency();
+        document.getElementById("expense").innerText = "-" + formatMoney(data.expense) + getCurrency();
 
         renderCategories(data.categories);
         renderTransactions(data.transactions);
@@ -441,7 +441,7 @@
         event.preventDefault();
 
         const type = document.getElementById("type").value;
-        const amount = document.getElementById("amount").value;
+        const amount = parseFloat(document.getElementById("amount").value);
         const category = document.getElementById("category").value;
         const comment = document.getElementById("comment").value;
 
@@ -469,6 +469,10 @@
         await loadDashboard(currentPeriod);
         showToast();
         }
+
+        function getCurrency() {
+    return currentUserId === "1" ? " zł" : " ₼";
+}
 
         function setType(type) {
         document.getElementById("type").value = type;
